@@ -1,0 +1,19 @@
+{
+    "name": "Doji.Unitron.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:3c232fa2b41fffc46800bce1cffebc95",
+        "GUID:5c2b5ba89f9e74e418232e154bc5cc7a"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
