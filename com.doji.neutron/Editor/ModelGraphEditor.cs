@@ -2,6 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Unity.Barracuda;
+using static Neutron.Editor.PathUtils;
 
 namespace Neutron.Editor {
 
@@ -21,12 +22,12 @@ namespace Neutron.Editor {
             VisualElement root = rootVisualElement;
 
             // Import UXML
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.doji.unitron/Editor/ModelGraphEditor.uxml");
+            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ModelGraphEditorUxmlPath);
             visualTree.CloneTree(root);
 
             // A stylesheet can be added to a VisualElement.
             // The style will be applied to the VisualElement and all of its children.
-            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.doji.unitron/Editor/ModelGraphEditor.uss");
+            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(ModelGraphEditorUssPath);
             root.styleSheets.Add(styleSheet);
 
             _graphView = root.Q<ModelGraphView>();

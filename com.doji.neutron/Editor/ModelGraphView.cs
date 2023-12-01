@@ -37,7 +37,7 @@ namespace Neutron.Editor {
 
             // A stylesheet can be added to a VisualElement.
             // The style will be applied to the VisualElement and all of its children.
-            StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.doji.unitron/Editor/ModelGraphEditor.uss");
+            StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(ModelGraphEditorUssPath);
             styleSheets.Add(styleSheet);
         }
 
