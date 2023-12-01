@@ -1,2 +1,2 @@
 # Unitron
-**Unitron** is a Unity/Barracuda-specific viewer for neural network models inspired by https://netron.app/
+**Unitron** is a neural network viewer inspired by [Netron](https://netron.app/) built for/with Unity Sentis.

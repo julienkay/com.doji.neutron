@@ -1,12 +1,12 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Unity.Barracuda;
+using Unity.Sentis;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static Neutron.Editor.PathUtils;
+using OnnxLayer = Unity.Sentis.Layers.Layer;
 
 namespace Neutron.Editor {
 
@@ -74,11 +74,12 @@ namespace Neutron.Editor {
             // create input node
             foreach (var input in _nnModel.inputs) {
                 CreateRootNode(input.name);
+                Debug.Log(input.name);
             }
 
             //create layer nodes
             Vector2 pos = Vector2.zero;
-            foreach (var layer in _nnModel.layers) {
+            foreach (OnnxLayer layer in _nnModel.layers) {
                 NodeView node = CreateLayerNode(layer);
                 //node.Position = pos;
                 if (layer.inputs != null) {
@@ -102,13 +103,18 @@ namespace Neutron.Editor {
         }
 
         private void CreateEdges() {
-            foreach (var layer in _nnModel.layers) {
+            foreach (OnnxLayer layer in _nnModel.layers) {
+
                 NodeView node = _nodeMap[layer.name];
 
                 // connect inputs
-                foreach(string input in layer.inputs) {
-                    NodeView inNode = _nodeMap[input];
-                    Edge edge = inNode.Outputs.ConnectTo(node.Inputs);
+                foreach (string input in layer.inputs) {
+                    if (!_nodeMap.TryGetValue(layer.name, out NodeView inputNode)) {
+                        Debug.Log($"Skip const input? (layer.name)");
+                        continue;
+                    }
+
+                    Edge edge = inputNode.Outputs.ConnectTo(node.Inputs);
                     edge.capabilities = 0;
                     AddElement(edge);
                 }
@@ -146,9 +152,9 @@ namespace Neutron.Editor {
             node.Position = pos;
             _finishedLayouting.Add(node);
 
-            pos[parallelAxis] += ((node.BarracudaLayer.inputs.Length - 1) / 2f) * offset;
+            pos[parallelAxis] += ((node.Layer.inputs.Length - 1) / 2f) * offset;
 
-            foreach (string layer in node.BarracudaLayer.inputs) {
+            foreach (string layer in node.Layer.inputs) {
                 NodeView inNode = _nodeMap[layer];
                 if (_finishedLayouting.Contains(inNode)) {
                     Vector2 tmp = inNode.Position;
@@ -158,7 +164,7 @@ namespace Neutron.Editor {
                 }
                 Debug.Assert(inNode.title != node.title, $"Node {layer} has a self-refence.");
 
-                if (node.BarracudaLayer.inputs.Length > 1) {
+                if (node.Layer.inputs.Length > 1) {
                     pos[parallelAxis] -= offset;
                 }
 
@@ -166,7 +172,7 @@ namespace Neutron.Editor {
             }
         }
 
-        private NodeView CreateLayerNode(Unity.Barracuda.Layer layer) {
+        private NodeView CreateLayerNode(OnnxLayer layer) {
             NodeView node = new NodeView(layer, Orientation);
             AddElement(node);
             node.capabilities = Capabilities.Selectable | Capabilities.Movable;
@@ -175,10 +181,7 @@ namespace Neutron.Editor {
         }
 
         private NodeView CreateRootNode(string name) {
-            var dummyLayer = new Unity.Barracuda.Layer(name, Unity.Barracuda.Layer.Activation.None);
-            dummyLayer.name = name;
-            NodeView node = new NodeView(dummyLayer, Orientation);
-            node.title = name;
+            NodeView node = new NodeView(name, Orientation);
             AddElement(node);
             _nodeMap.Add(name, node);
             return node;

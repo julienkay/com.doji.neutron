@@ -1,17 +1,16 @@
 {
-   "name": "com.doji.neutron",
-   "version": "1.0.0",
-   "displayName": "Neutron",
-   "description": "A neural network viewer inspired by Netron built for/with Unity Sentis.",
-   "dependencies": {
-      "com.unity.barracuda": "3.0.0",
-      "com.unity.ui": "1.0.0-preview.18",
-      "com.unity.ui.builder": "1.0.0-preview.18"
-   },
-   "author":
-   {
-      "name": "Doji Technologies",
-      "email": "support@doji-tech.com",
-      "url": "https://www.doji-tech.com/"
-   }
+  "name": "com.doji.neutron",
+  "version": "1.0.0",
+  "displayName": "Neutron",
+  "description": "A neural network viewer inspired by Netron built for/with Unity Sentis.",
+  "dependencies": {
+    "com.unity.sentis": "1.3.0-pre.2",
+    "com.unity.ui": "1.0.0-preview.18",
+    "com.unity.ui.builder": "1.0.0-preview.18"
+  },
+  "author": {
+    "name": "Doji Technologies",
+    "email": "support@doji-tech.com",
+    "url": "https://www.doji-tech.com/"
+  }
 }

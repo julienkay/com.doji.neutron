@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Unity.Barracuda;
+using Unity.Sentis;
 using static Neutron.Editor.PathUtils;
 
 namespace Neutron.Editor {
@@ -37,7 +37,7 @@ namespace Neutron.Editor {
         }
 
         private void OnSelectionChange() {
-            NNModel nnModel = Selection.activeObject as NNModel;
+            ModelAsset nnModel = Selection.activeObject as ModelAsset;
             if (nnModel) {
                 Model model = ModelLoader.Load(nnModel);
                 _graphView.PopulateView(model);

@@ -1,11 +1,12 @@
-using Unity.Barracuda;
+using Unity.Sentis;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using OnnxLayer = Unity.Sentis.Layers.Layer;
 
 namespace Neutron.Editor {
     public class NodeView : Node {
 
-        public Layer BarracudaLayer;
+        public OnnxLayer Layer;
 
         public Port Inputs;
         public Port Outputs;
@@ -24,12 +25,21 @@ namespace Neutron.Editor {
         }
         public Vector2 _position;
 
-        public NodeView(Layer layer, Orientation orientation) {
+        public NodeView(string name, Orientation orientation) {
             CreateInputPorts();
             CreateOutputPorts();
             _orientation = orientation;
-            BarracudaLayer = layer;
-            title = $"{layer.type} ({layer.name})";
+            Layer = null;
+            title = name;
+        }
+
+        public NodeView(OnnxLayer layer, Orientation orientation) {
+            CreateInputPorts();
+            CreateOutputPorts();
+            _orientation = orientation;
+            Layer = layer;
+            string type = 
+            title = $"{layer.GetType().Name} ({layer.name})";
         }
 
         private void CreateInputPorts() {
