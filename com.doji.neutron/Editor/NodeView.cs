@@ -2,8 +2,8 @@ using Unity.Barracuda;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
-namespace Unitron.Editor {
-    public class NodeView : UnityEditor.Experimental.GraphView.Node {
+namespace Neutron.Editor {
+    public class NodeView : Node {
 
         public Layer BarracudaLayer;
 

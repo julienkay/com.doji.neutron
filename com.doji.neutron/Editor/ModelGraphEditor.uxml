@@ -1,14 +1,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Packages/com.doji.unitron/Editor/ModelGraphEditor.uss?fileID=7433441132597879392&amp;guid=9342f090de7415847bbee0b456d1b472&amp;type=3#ModelGraphEditor" />
-    <Unitron.Editor.SplitView>
+    <Style src="project://database/Packages/com.doji.neutron/Editor/ModelGraphEditor.uss?fileID=7433441132597879392&amp;guid=9342f090de7415847bbee0b456d1b472&amp;type=3#ModelGraphEditor" />
+    <Neutron.Editor.SplitView>
         <ui:VisualElement name="PanelLeft">
-            <Unitron.Editor.InspectorView />
+            <Neutron.Editor.InspectorView />
             <ui:Label text="Inspector" display-tooltip-when-elided="true" style="background-color: rgb(37, 37, 37);" />
         </ui:VisualElement>
         <ui:VisualElement name="PanelRight">
-            <Unitron.Editor.ModelGraphView focusable="true" style="flex-grow: 1;">
+            <Neutron.Editor.ModelGraphView focusable="true" style="flex-grow: 1;">
                 <ui:Label text="Model Graph" display-tooltip-when-elided="true" style="background-color: rgb(37, 37, 37);" />
-            </Unitron.Editor.ModelGraphView>
+            </Neutron.Editor.ModelGraphView>
         </ui:VisualElement>
-    </Unitron.Editor.SplitView>
+    </Neutron.Editor.SplitView>
 </ui:UXML>

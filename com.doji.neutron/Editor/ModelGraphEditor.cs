@@ -1,18 +1,16 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
 using Unity.Barracuda;
-using System.Collections.Generic;
 
-namespace Unitron.Editor {
+namespace Neutron.Editor {
 
     public class ModelGraphEditor : EditorWindow {
 
         private ModelGraphView _graphView;
         private InspectorView _inspectorView;
 
-        [MenuItem("Unitron/ModelGraphEditor")]
+        [MenuItem("Neutron/ModelGraphEditor")]
         public static void OpenWindow() {
             ModelGraphEditor wnd = GetWindow<ModelGraphEditor>();
             wnd.titleContent = new GUIContent("ModelGraphEditor");

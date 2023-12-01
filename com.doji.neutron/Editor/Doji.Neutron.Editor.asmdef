@@ -1,5 +1,5 @@
 {
-    "name": "Doji.Unitron.Editor",
+    "name": "Doji.Neutron.Editor",
     "rootNamespace": "",
     "references": [
         "GUID:3c232fa2b41fffc46800bce1cffebc95",
