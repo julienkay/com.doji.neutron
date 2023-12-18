@@ -11,4 +11,5 @@
             </Neutron.Editor.ModelGraphView>
         </ui:VisualElement>
     </Neutron.Editor.SplitView>
+    <Neutron.Editor.ModelGraphView focusable="true" />
 </ui:UXML>

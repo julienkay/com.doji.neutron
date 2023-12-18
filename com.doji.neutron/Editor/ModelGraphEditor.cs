@@ -11,16 +11,16 @@ namespace Neutron.Editor {
         private ModelGraphView _graphView;
         private InspectorView _inspectorView;
 
-        [MenuItem("Neutron/ModelGraphEditor")]
+        [MenuItem("Window/Neutron")]
         public static void OpenWindow() {
             ModelGraphEditor wnd = GetWindow<ModelGraphEditor>();
-            wnd.titleContent = new GUIContent("ModelGraphEditor");
+            wnd.titleContent = new GUIContent("Neutron");
         }
 
         public void CreateGUI() {
             // Each editor window contains a root VisualElement object
             VisualElement root = rootVisualElement;
-
+             
             // Import UXML
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ModelGraphEditorUxmlPath);
             visualTree.CloneTree(root);
