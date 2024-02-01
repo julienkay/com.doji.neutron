@@ -108,13 +108,15 @@ namespace Neutron.Editor {
                 NodeView node = _nodeMap[layer.name];
 
                 // connect inputs
-                foreach (string input in layer.inputs) {
-                    if (!_nodeMap.TryGetValue(layer.name, out NodeView inputNode)) {
-                        Debug.Log($"Skip const input? (layer.name)");
+                for (int i = 0; i < layer.inputs.Length; i++) {
+                string input = layer.inputs[i];
+                    if (!_nodeMap.TryGetValue(input, out NodeView inputNode)) {
+                        Debug.Log($"Skip const input? {input}");
                         continue;
                     }
 
-                    Edge edge = inputNode.Outputs.ConnectTo(node.Inputs);
+                    //Edge edge = inputNode.Outputs.ConnectTo(node.Inputs);
+                    Edge edge = node.Inputs[i].ConnectTo(inputNode.Outputs);
                     edge.capabilities = 0;
                     AddElement(edge);
                 }
