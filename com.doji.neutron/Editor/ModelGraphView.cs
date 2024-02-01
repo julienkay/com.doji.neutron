@@ -26,14 +26,15 @@ namespace Neutron.Editor {
         private Dictionary<string, NodeView> _nodeMap = new Dictionary<string, NodeView>();
         private List<NodeView> _outputNodes = new List<NodeView>();
 
+        private Graph _graph;
+
         public ModelGraphView() {
             Insert(0, new GridBackground());
 
-            this.AddManipulator(new ContentZoomer());
+            SetupZoom(0.01f, 1f);
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
-
 
             // A stylesheet can be added to a VisualElement.
             // The style will be applied to the VisualElement and all of its children.
@@ -46,7 +47,7 @@ namespace Neutron.Editor {
         /// in the given <see cref="Model"/>
         /// </summary>
         private void CreateModelGraph(Model model) {
-
+            _graph = new Graph(model);
         }
 
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter) {
@@ -65,29 +66,31 @@ namespace Neutron.Editor {
         }
 
         private void CreateGraphView() {
+            CreateModelGraph(_nnModel);
             CreateNodes();
             CreateEdges();
-            UpdateLayout();
+            //UpdateLayout();
+            UpdateLayout(_graph);
         }
 
         private void CreateNodes() {
             // create input node
             foreach (var input in _nnModel.inputs) {
                 CreateRootNode(input.name);
-                Debug.Log(input.name);
+                //Debug.Log(input.name);
             }
 
-            //create layer nodes
+            //create layer node
             Vector2 pos = Vector2.zero;
             foreach (OnnxLayer layer in _nnModel.layers) {
                 NodeView node = CreateLayerNode(layer);
                 //node.Position = pos;
-                if (layer.inputs != null) {
+                /*if (layer.inputs != null) {
                     Debug.Log(layer.name + " inputs: " + string.Join("][", layer.inputs));
                 }
                 if (layer.outputs != null) {
                     Debug.Log(layer.name + " outputs: " + string.Join("][", layer.outputs));
-                }
+                }*/
 
                 //int i = Horizontal ? 0 : 1;
                 //Vector2 offset = new Vector2(0f, 0f);
@@ -95,7 +98,7 @@ namespace Neutron.Editor {
                 //pos += offset;
             }
 
-            // get output nodes
+            // get output node
             foreach (string output in _nnModel.outputs) {
                 NodeView n = _nodeMap[output];
                 _outputNodes.Add(n);
@@ -111,7 +114,7 @@ namespace Neutron.Editor {
                 for (int i = 0; i < layer.inputs.Length; i++) {
                 string input = layer.inputs[i];
                     if (!_nodeMap.TryGetValue(input, out NodeView inputNode)) {
-                        Debug.Log($"Skip const input? {input}");
+                        //Debug.Log($"Skip const input: {input}");
                         continue;
                     }
 
@@ -120,6 +123,25 @@ namespace Neutron.Editor {
                     edge.capabilities = 0;
                     AddElement(edge);
                 }
+            }
+        }
+
+        private void UpdateLayout(Graph graph) {
+            int parallelAxis = Horizontal ? 1 : 0;
+            int sequentialAxis = 1 - parallelAxis;
+            const float offset = 100;
+            const float sequentialOffset = 180;
+            Vector2 pos = Vector2.zero;
+
+            foreach (var layers in graph.Layers) {
+                pos[parallelAxis] = 0;
+                foreach (var node in layers) {
+                    var nodeView = _nodeMap[node.name];
+                    pos[parallelAxis] += ((nodeView.Layer.inputs.Length - 1) / 2f) * offset;
+                    nodeView.Position = pos;
+                }
+
+                pos[sequentialAxis] += sequentialOffset;
             }
         }
 
