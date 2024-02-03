@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Sentis;
+using Unity.Sentis.Layers;
 
 // in this class we're calling them layers  to disambiguate between the 
 // 'Layers' that each graph node is assigned to as part of the layouting process.
@@ -36,6 +36,10 @@ namespace Neutron.Editor {
 
             // get all nodes
             foreach (Node node in model.layers) {
+                if (node is ConstantOfShape) {
+                    // skip const inputs since we don't display them
+                    continue;
+                }
                 Nodes.Add(node.name, node);
             }
 
@@ -54,18 +58,6 @@ namespace Neutron.Editor {
                         ReverseEdges[node] = new List<Node>();
                     }
                     ReverseEdges[node].Add(inputNode);
-                }
-            }
-
-            foreach (Node node in model.layers) {
-                foreach (var input in node.inputs) {
-                    if (!Nodes.TryGetValue(input, out Node inputNode)) {
-                        continue;
-                    }
-                    if (!Edges.TryGetValue(inputNode, out List<Node> edges)) {
-                        Edges[inputNode] = new List<Node>();
-                    }
-                    Edges[inputNode].Add(node);
                 }
             }
 
@@ -108,6 +100,34 @@ namespace Neutron.Editor {
                 }
             }
             return maxPredecessorNode + 1;
+        }
+
+        public int GetChildCount(Node node) {
+            if (!Nodes.ContainsKey(node.name)) {
+                throw new ArgumentException($"The given node {node} was not found in the graph.");
+            }
+
+            return Edges[node].Count;
+        }
+
+        public int GetParentCount(Node node) {
+            if (!Nodes.ContainsKey(node.name)) {
+                throw new ArgumentException($"The given node {node} was not found in the graph.");
+            }
+
+            // first node
+            if (!ReverseEdges.ContainsKey(node)) {
+                return 0;
+            }
+
+            return ReverseEdges[node].Count;
+        }
+
+        public int GetParent(Node node) {
+            if (!Nodes.ContainsKey(node.name)) {
+                throw new ArgumentException($"The given node {node} was not found in the graph.");
+            }
+            return ReverseEdges[node].Count;
         }
 
         public bool IsInput(string name) {

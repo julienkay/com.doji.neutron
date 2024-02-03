@@ -47,7 +47,7 @@ namespace Neutron.Editor {
         public NodeView(OnnxLayer layer, Orientation orientation) : base(NodeViewUxml) {
             _orientation = orientation;
             Layer = layer;
-            title = layer != null ? $"{layer.GetType().Name} ({layer.name})" : null;
+            title = layer != null ? $"{layer.GetType().Name}" : null;
             _layerType = layer?.GetType();
             CreateInputPorts();
             CreateOutputPorts();

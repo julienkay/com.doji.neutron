@@ -41,6 +41,7 @@ namespace Neutron.Editor {
             if (nnModel) {
                 Model model = ModelLoader.Load(nnModel);
                 _graphView.PopulateView(model);
+                _graphView.FrameOrigin();
             }
         }
     }

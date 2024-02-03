@@ -1,5 +1,6 @@
 #node-border {
     background-color: rgb(108, 108, 108);
+    min-width: 62px;
 }
 
 #input {
@@ -10,10 +11,10 @@
     align-items: center;
 }
 
-.sub #input {
-    background-color: rgb(64, 204, 51);
+.cpu-fallback #node-border {
+    background-color: rgb(214, 78, 78);
 }
 
-.cpu-fallback {
-    background-color: rgb(255, 0, 0);
+#title {
+    -unity-text-align: upper-center;
 }

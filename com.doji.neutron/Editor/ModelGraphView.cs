@@ -65,7 +65,7 @@ namespace Neutron.Editor {
         }
 
         /// <summary>
-        /// Creates an insternal graph representation of all the layers
+        /// Creates an internal graph representation of all the layer
         /// in the given <see cref="Model"/>
         /// </summary>
         private void CreateModelGraph(Model model) {
@@ -130,22 +130,36 @@ namespace Neutron.Editor {
             }
         }
 
+
         private void UpdateLayout(Graph graph) {
             int parallelAxis = Horizontal ? 1 : 0;
             int sequentialAxis = 1 - parallelAxis;
-            const float offset = 180;
-            const float sequentialOffset = 180;
+            const float parallelSpacing = 180;
+            const float sequentialSpacing = 120;
             Vector2 pos = Vector2.zero;
+            float currentY = 0f;
 
-            foreach (var layers in graph.Layers) {
-                pos[parallelAxis] = 0;
-                foreach (var node in layers) {
+            int i = 0;
+            float tmpXOffset = 0f;
+
+            foreach (var layer in graph.Layers) {
+                float layerHeight = layer.Count * sequentialSpacing;
+                float startY = currentY - layerHeight / 2f;
+                float endY = startY + layerHeight;
+                float currentX = 0f;
+
+                foreach (var node in layer) {
+                    tmpXOffset -= parallelSpacing * _graph.GetParentCount(node);
                     var nodeView = _nodeMap[node.name];
-                    pos[parallelAxis] += ((nodeView.Layer.inputs.Length - 1) / 2f) * offset;
+                    pos[parallelAxis] = currentX + tmpXOffset;
+                    pos[sequentialAxis] = (startY + endY) / 2f;
                     nodeView.Position = pos;
+                    currentX += parallelSpacing;
+                    tmpXOffset += parallelSpacing * _graph.GetChildCount(node);
                 }
 
-                pos[sequentialAxis] += sequentialOffset;
+                i++;
+                currentY += sequentialSpacing;
             }
         }
 
