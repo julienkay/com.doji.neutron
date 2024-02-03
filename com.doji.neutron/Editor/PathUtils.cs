@@ -24,5 +24,10 @@ namespace Neutron.Editor {
                 return Path.Combine(PackageRootDir, "Editor", "ModelGraphEditor.uss");
             }
         }
+        public static string NodeViewUxml {
+            get {
+                return Path.Combine(PackageRootDir, "Editor", "NodeView.uxml");
+            }
+        }
     }
 }

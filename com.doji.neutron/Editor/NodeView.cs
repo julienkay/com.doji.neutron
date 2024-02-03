@@ -1,15 +1,17 @@
-using System.Collections.Generic;
-using Unity.Sentis.Layers;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.UIElements;
+using System;
 using OnnxLayer = Unity.Sentis.Layers.Layer;
+using static Neutron.Editor.PathUtils;
 
 namespace Neutron.Editor {
+
     public class NodeView : Node {
 
         public OnnxLayer Layer;
 
-        public List<Port> Inputs = new List<Port>();
+        public Port Inputs;
         public Port Outputs;
 
         private Orientation _orientation;
@@ -26,38 +28,50 @@ namespace Neutron.Editor {
         }
         public Vector2 _position;
 
-        public NodeView(string name, Orientation orientation) {
-            _orientation = orientation;
-            Layer = null;
-            title = name;
-            CreateInputPorts();
-            CreateOutputPorts();
+        public bool CPUFallback {
+            get {
+                return _cpuFallback;
+            } set {
+                _cpuFallback = value;
+                if (value) {
+                    AddToClassList("cpu-fallback");
+                } else {
+                    RemoveFromClassList("cpu-fallback");
+                }
+            }
         }
+        private bool _cpuFallback;
 
-        public NodeView(OnnxLayer layer, Orientation orientation) {
+        private Type _layerType;
+
+        public NodeView(OnnxLayer layer, Orientation orientation) : base(NodeViewUxml) {
             _orientation = orientation;
             Layer = layer;
-            title = $"{layer.GetType().Name} ({layer.name})";
+            title = layer != null ? $"{layer.GetType().Name} ({layer.name})" : null;
+            _layerType = layer?.GetType();
             CreateInputPorts();
             CreateOutputPorts();
+            SetupClasses();
+        }
+
+        public NodeView(string name, Orientation orientation) : this((OnnxLayer)null, orientation) {
+            title = name;
+        }
+
+        private void SetupClasses() {
+            if (_layerType != null) {
+                AddToClassList(_layerType.Name.ToLower());
+            }
         }
 
         private void CreateInputPorts() {
-            if (Layer == null || Layer.inputs == null) {
-                return;
-            }
-            foreach (var layer in Layer.inputs) {
-                Inputs.Add(CreateInputPort());
-            }
-        }
-
-        private Port CreateInputPort() {
             Port input = InstantiatePort(_orientation, Direction.Input, Port.Capacity.Multi, typeof(bool));
             if (input != null) {
                 input.portName = "";
                 inputContainer.Add(input);
             }
-            return input;
+            input.style.flexDirection = FlexDirection.Column;
+            Inputs = input;
         }
 
         private void CreateOutputPorts() {
@@ -66,6 +80,7 @@ namespace Neutron.Editor {
                 output.portName = "";
                 outputContainer.Add(output);
             }
+            output.style.flexDirection = FlexDirection.ColumnReverse;
             Outputs = output;
         }
 

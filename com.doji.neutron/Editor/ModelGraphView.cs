@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Unity.Sentis;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
@@ -19,7 +21,7 @@ namespace Neutron.Editor {
                 return Orientation == Orientation.Horizontal;
             }
         }
-        public Orientation Orientation = Orientation.Horizontal;
+        public Orientation Orientation = Orientation.Vertical;
 
         private Model _nnModel;
 
@@ -27,11 +29,12 @@ namespace Neutron.Editor {
         private List<NodeView> _outputNodes = new List<NodeView>();
 
         private Graph _graph;
+        private HashSet<string> _layerCPUFallback;
 
         public ModelGraphView() {
-            Insert(0, new GridBackground());
+            //Insert(0, new GridBackground());
 
-            SetupZoom(0.01f, 1f);
+            SetupZoom(0.01f, 2f);
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
@@ -40,6 +43,25 @@ namespace Neutron.Editor {
             // The style will be applied to the VisualElement and all of its children.
             StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(ModelGraphEditorUssPath);
             styleSheets.Add(styleSheet);
+        }
+
+        internal void PopulateView(Model nnModel) {
+            _nnModel = nnModel;
+
+            DeleteElements(graphElements);
+            _nodeMap.Clear();
+            _outputNodes.Clear();
+            _layerCPUFallback?.Clear();
+
+            CreateGraphView();
+        }
+
+        private void CreateGraphView() {
+            CreateModelGraph(_nnModel);
+            GetCpuFallbackNodes();
+            CreateNodes();
+            CreateEdges();
+            UpdateLayout(_graph);
         }
 
         /// <summary>
@@ -56,21 +78,15 @@ namespace Neutron.Editor {
             endPort.node != startPort.node).ToList();
         }
 
-        internal void PopulateView(Model nnModel) {
-            _nnModel = nnModel;
+        private void GetCpuFallbackNodes() {
+            Type type = _nnModel.GetType();
 
-            DeleteElements(graphElements);
-            _nodeMap.Clear();
+            FieldInfo fieldInfo = type.GetField("LayerCPUFallback", BindingFlags.NonPublic | BindingFlags.Instance);
 
-            CreateGraphView();
-        }
-
-        private void CreateGraphView() {
-            CreateModelGraph(_nnModel);
-            CreateNodes();
-            CreateEdges();
-            //UpdateLayout();
-            UpdateLayout(_graph);
+            if (fieldInfo != null) {
+                // Access the value of the field from the model instance
+                _layerCPUFallback = new HashSet<string>((HashSet<string>)fieldInfo.GetValue(_nnModel));
+            }
         }
 
         private void CreateNodes() {
@@ -84,18 +100,6 @@ namespace Neutron.Editor {
             Vector2 pos = Vector2.zero;
             foreach (OnnxLayer layer in _nnModel.layers) {
                 NodeView node = CreateLayerNode(layer);
-                //node.Position = pos;
-                /*if (layer.inputs != null) {
-                    Debug.Log(layer.name + " inputs: " + string.Join("][", layer.inputs));
-                }
-                if (layer.outputs != null) {
-                    Debug.Log(layer.name + " outputs: " + string.Join("][", layer.outputs));
-                }*/
-
-                //int i = Horizontal ? 0 : 1;
-                //Vector2 offset = new Vector2(0f, 0f);
-                //offset[i] = 180;
-                //pos += offset;
             }
 
             // get output node
@@ -119,7 +123,7 @@ namespace Neutron.Editor {
                     }
 
                     //Edge edge = inputNode.Outputs.ConnectTo(node.Inputs);
-                    Edge edge = node.Inputs[i].ConnectTo(inputNode.Outputs);
+                    Edge edge = node.Inputs.ConnectTo(inputNode.Outputs);
                     edge.capabilities = 0;
                     AddElement(edge);
                 }
@@ -129,7 +133,7 @@ namespace Neutron.Editor {
         private void UpdateLayout(Graph graph) {
             int parallelAxis = Horizontal ? 1 : 0;
             int sequentialAxis = 1 - parallelAxis;
-            const float offset = 100;
+            const float offset = 180;
             const float sequentialOffset = 180;
             Vector2 pos = Vector2.zero;
 
@@ -145,59 +149,10 @@ namespace Neutron.Editor {
             }
         }
 
-        HashSet<NodeView> _finishedLayouting = new HashSet<NodeView>();
-
-        /// <summary>
-        /// Creates the layout for the GraphView bottom up.
-        /// </summary>
-        private void UpdateLayout() {
-            int paralletlAxis = Horizontal ? 1 : 0;
-            const float offset = 60;
-            Vector2 pos = Vector2.zero;
-            _finishedLayouting.Clear();
-
-            foreach (var node in _outputNodes) {
-                pos[paralletlAxis] += offset;
-                UpdateLayoutRecursive(node, pos);
-            }
-
-            /*_outputNodes.ForEach(node => stack.Push(node));
-            while (stack.Count != 0) {
-                NodeView node = stack.Pop();
-
-            }*/
-        }
-
-        private void UpdateLayoutRecursive(NodeView node, Vector2 pos) {
-            int parallelAxis = Horizontal ? 1 : 0;
-            int sequentialAxis = 1 - parallelAxis;
-            const float offset = 80;
-            pos[sequentialAxis] -= 180;
-            node.Position = pos;
-            _finishedLayouting.Add(node);
-
-            pos[parallelAxis] += ((node.Layer.inputs.Length - 1) / 2f) * offset;
-
-            foreach (string layer in node.Layer.inputs) {
-                NodeView inNode = _nodeMap[layer];
-                if (_finishedLayouting.Contains(inNode)) {
-                    Vector2 tmp = inNode.Position;
-                    tmp[sequentialAxis] = pos[sequentialAxis];
-                    //inNode.Position = tmp;
-                    continue;
-                }
-                Debug.Assert(inNode.title != node.title, $"Node {layer} has a self-refence.");
-
-                if (node.Layer.inputs.Length > 1) {
-                    pos[parallelAxis] -= offset;
-                }
-
-                UpdateLayoutRecursive(inNode, pos);
-            }
-        }
-
         private NodeView CreateLayerNode(OnnxLayer layer) {
             NodeView node = new NodeView(layer, Orientation);
+            node.title = _layerCPUFallback.Contains(layer.name) ? $"{node.title} (CPU)" : node.title;
+            node.CPUFallback = _layerCPUFallback.Contains(layer.name);
             AddElement(node);
             node.capabilities = Capabilities.Selectable | Capabilities.Movable;
             _nodeMap.Add(layer.name, node);

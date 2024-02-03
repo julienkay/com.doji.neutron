@@ -1,0 +1,19 @@
+#node-border {
+    background-color: rgb(108, 108, 108);
+}
+
+#input {
+    align-items: center;
+}
+
+#output {
+    align-items: center;
+}
+
+.sub #input {
+    background-color: rgb(64, 204, 51);
+}
+
+.cpu-fallback {
+    background-color: rgb(255, 0, 0);
+}
