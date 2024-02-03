@@ -4,7 +4,7 @@
   "displayName": "Neutron",
   "description": "A neural network viewer inspired by Netron built for/with Unity Sentis.",
   "dependencies": {
-    "com.unity.sentis": "1.3.0-pre.2",
+    "com.unity.sentis": "1.3.0-pre.3",
     "com.unity.ui": "1.0.0-preview.18",
     "com.unity.ui.builder": "1.0.0-preview.18"
   },
