@@ -104,7 +104,12 @@ namespace Neutron.Editor {
 
         public int GetChildCount(Node node) {
             if (!Nodes.ContainsKey(node.name)) {
-                throw new ArgumentException($"The given node {node} was not found in the graph.");
+                throw new ArgumentException($"The node'{node}' was not found in the graph.");
+            }
+            if (!Edges.ContainsKey(node)) {
+                //throw new ArgumentException($"No child nodes where found for node '{node}'.");
+                //TODO: insert custom dummy nodes (inheriting from Sentis.Layer) for input/output nodes and insert them into graph
+                return 0;
             }
 
             return Edges[node].Count;
@@ -112,11 +117,10 @@ namespace Neutron.Editor {
 
         public int GetParentCount(Node node) {
             if (!Nodes.ContainsKey(node.name)) {
-                throw new ArgumentException($"The given node {node} was not found in the graph.");
+                throw new ArgumentException($"The node '{node}' was not found in the graph.");
             }
-
-            // first node
             if (!ReverseEdges.ContainsKey(node)) {
+                //throw new ArgumentException($"No parent nodes where found for node '{node}'.");
                 return 0;
             }
 
@@ -125,8 +129,12 @@ namespace Neutron.Editor {
 
         public int GetParent(Node node) {
             if (!Nodes.ContainsKey(node.name)) {
-                throw new ArgumentException($"The given node {node} was not found in the graph.");
+                throw new ArgumentException($"The node '{node}' was not found in the graph.");
             }
+            if (!ReverseEdges.ContainsKey(node)) {
+                throw new ArgumentException($"No parent nodes where found for node '{node}'.");
+            }
+
             return ReverseEdges[node].Count;
         }
 
