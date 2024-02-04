@@ -68,9 +68,11 @@ namespace Neutron.Editor {
             Port input = InstantiatePort(_orientation, Direction.Input, Port.Capacity.Multi, typeof(bool));
             if (input != null) {
                 input.portName = "";
+                input.style.flexDirection = FlexDirection.Column;
+                input.pickingMode = PickingMode.Ignore;
                 inputContainer.Add(input);
             }
-            input.style.flexDirection = FlexDirection.Column;
+
             Inputs = input;
         }
 
@@ -78,15 +80,11 @@ namespace Neutron.Editor {
             Port output = InstantiatePort(_orientation, Direction.Output, Port.Capacity.Multi, typeof(bool));
             if (output != null) {
                 output.portName = "";
+                output.style.flexDirection = FlexDirection.ColumnReverse;
+                output.pickingMode = PickingMode.Ignore;
                 outputContainer.Add(output);
             }
-            output.style.flexDirection = FlexDirection.ColumnReverse;
             Outputs = output;
         }
-
-        /*public override void SetPosition(Rect newPos) {
-            base.SetPosition(newPos);
-            position = newPos.position;
-        }*/
     }
 }

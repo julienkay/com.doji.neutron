@@ -124,7 +124,9 @@ namespace Neutron.Editor {
 
                     //Edge edge = inputNode.Outputs.ConnectTo(node.Inputs);
                     Edge edge = node.Inputs.ConnectTo(inputNode.Outputs);
-                    edge.capabilities = 0;
+                    // why does setting capabilities not work?
+                    //edge.capabilities = 0;
+                    edge.SetEnabled(false);
                     AddElement(edge);
                 }
             }
