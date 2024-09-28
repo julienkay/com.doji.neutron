@@ -24,5 +24,6 @@ Go to Windows -> Neutron to open the model viewer. Then in your Project window s
 ## Known Issues
 
 - Layouting is far from perfect
+- Only looks right with the *Dark* Editor Theme
 
 [OpenUPM]: https://openupm.com/packages/com.doji.neutron
