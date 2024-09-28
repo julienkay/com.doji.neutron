@@ -1,6 +1,5 @@
 using System.Collections.Generic;
-using Unity.Sentis.Layers;
-using UnityEngine;
+using Unity.Sentis;
 
 namespace Neutron.Editor {
 

@@ -8,7 +8,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static Neutron.Editor.PathUtils;
-using OnnxLayer = Unity.Sentis.Layers.Layer;
+using OnnxLayer = Unity.Sentis.Layer;
 
 namespace Neutron.Editor {
 
@@ -25,7 +25,7 @@ namespace Neutron.Editor {
 
         private Model _nnModel;
 
-        private Dictionary<string, NodeView> _nodeMap = new Dictionary<string, NodeView>();
+        private Dictionary<int, NodeView> _nodeMap = new Dictionary<int, NodeView>();
         private List<NodeView> _outputNodes = new List<NodeView>();
 
         private Graph _graph;
@@ -81,6 +81,7 @@ namespace Neutron.Editor {
         private void GetCpuFallbackNodes() {
             Type type = _nnModel.GetType();
 
+            // TODO: m_LayerCPUFallback moved to Worker
             FieldInfo fieldInfo = type.GetField("LayerCPUFallback", BindingFlags.NonPublic | BindingFlags.Instance);
 
             if (fieldInfo != null) {
@@ -92,19 +93,19 @@ namespace Neutron.Editor {
         private void CreateNodes() {
             // create input node
             foreach (var input in _nnModel.inputs) {
-                CreateRootNode(input.name);
+                CreateRootNode(input.index);
                 //Debug.Log(input.name);
             }
 
-            //create layer node
+            // create layer node
             Vector2 pos = Vector2.zero;
             foreach (OnnxLayer layer in _nnModel.layers) {
                 NodeView node = CreateLayerNode(layer);
             }
 
             // get output node
-            foreach (string output in _nnModel.outputs) {
-                NodeView n = _nodeMap[output];
+            foreach (var output in _nnModel.outputs) {
+                NodeView n = _nodeMap[output.index];
                 _outputNodes.Add(n);
             }
         }
@@ -112,11 +113,11 @@ namespace Neutron.Editor {
         private void CreateEdges() {
             foreach (OnnxLayer layer in _nnModel.layers) {
 
-                NodeView node = _nodeMap[layer.name];
+                NodeView node = _nodeMap[layer.outputs[0]];
 
                 // connect inputs
                 for (int i = 0; i < layer.inputs.Length; i++) {
-                string input = layer.inputs[i];
+                int input = layer.inputs[i];
                     if (!_nodeMap.TryGetValue(input, out NodeView inputNode)) {
                         //Debug.Log($"Skip const input: {input}");
                         continue;
@@ -152,7 +153,7 @@ namespace Neutron.Editor {
 
                 foreach (var node in layer) {
                     tmpXOffset -= parallelSpacing * _graph.GetParentCount(node);
-                    var nodeView = _nodeMap[node.name];
+                    var nodeView = _nodeMap[node.outputs[0]];
                     pos[parallelAxis] = currentX + tmpXOffset;
                     pos[sequentialAxis] = (startY + endY) / 2f;
                     nodeView.Position = pos;
@@ -167,18 +168,18 @@ namespace Neutron.Editor {
 
         private NodeView CreateLayerNode(OnnxLayer layer) {
             NodeView node = new NodeView(layer, Orientation);
-            node.title = _layerCPUFallback.Contains(layer.name) ? $"{node.title} (CPU)" : node.title;
-            node.CPUFallback = _layerCPUFallback.Contains(layer.name);
+            node.title = _layerCPUFallback?.Contains(layer.ToString()) == true ? $"{node.title} (CPU)" : node.title;
+            node.CPUFallback = _layerCPUFallback?.Contains(layer.ToString()) == true;
             AddElement(node);
             node.capabilities = Capabilities.Selectable | Capabilities.Movable;
-            _nodeMap.Add(layer.name, node);
+            _nodeMap.Add(layer.outputs[0], node);
             return node;
         }
 
-        private NodeView CreateRootNode(string name) {
+        private NodeView CreateRootNode(int id) {
             NodeView node = new NodeView(name, Orientation);
             AddElement(node);
-            _nodeMap.Add(name, node);
+            _nodeMap.Add(id, node);
             return node;
         }
     }

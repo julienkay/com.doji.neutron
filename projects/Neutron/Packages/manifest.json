@@ -1,8 +1,8 @@
 {
   "dependencies": {
     "com.doji.neutron": "file:../../../com.doji.neutron",
-    "com.unity.ai.navigation": "1.1.4",
-    "com.unity.ide.visualstudio": "2.0.18",
+    "com.unity.ai.navigation": "1.1.5",
+    "com.unity.ide.visualstudio": "2.0.22",
     "com.unity.textmeshpro": "3.0.6",
     "com.unity.ugui": "1.0.0",
     "com.unity.modules.ai": "1.0.0",

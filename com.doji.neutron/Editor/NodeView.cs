@@ -2,7 +2,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System;
-using OnnxLayer = Unity.Sentis.Layers.Layer;
+using OnnxLayer = Unity.Sentis.Layer;
 using static Neutron.Editor.PathUtils;
 
 namespace Neutron.Editor {

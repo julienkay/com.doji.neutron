@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Unity.Sentis;
-using Unity.Sentis.Layers;
 
-// in this class we're calling them layers  to disambiguate between the 
+// in this class we're calling them nodes to disambiguate between the 
 // 'Layers' that each graph node is assigned to as part of the layouting process.
-using Node = Unity.Sentis.Layers.Layer;
+using Node = Unity.Sentis.Layer;
 
 namespace Neutron.Editor {
 
@@ -15,7 +14,7 @@ namespace Neutron.Editor {
     /// </summary>
     public class Graph {
 
-        public Dictionary<string, Node> Nodes { get; private set; } = new Dictionary<string, Node>();
+        public Dictionary<int, Node> Nodes { get; private set; } = new Dictionary<int, Node>();
 
         public Dictionary<Node, List<Node>> Edges { get; private set; } = new Dictionary<Node, List<Node>>();
 
@@ -28,7 +27,7 @@ namespace Neutron.Editor {
         private List<Node> _sortedNodes = new List<Node>();
 
         private List<Model.Input> _inputs = new List<Model.Input>();
-        private List<string> _outputs = new List<string>();
+        private List<Model.Output> _outputs = new List<Model.Output>();
 
         public Graph(Model model) {
             _inputs = model.inputs;
@@ -36,11 +35,11 @@ namespace Neutron.Editor {
 
             // get all nodes
             foreach (Node node in model.layers) {
-                if (node is ConstantOfShape) {
-                    // skip const inputs since we don't display them
-                    continue;
-                }
-                Nodes.Add(node.name, node);
+                //if (node is ConstantOfShape) {
+                //    // skip const inputs since we don't display them
+                //    continue;
+                //}
+                Nodes.Add(node.outputs[0], node);
             }
 
             // get all edges
@@ -103,7 +102,7 @@ namespace Neutron.Editor {
         }
 
         public int GetChildCount(Node node) {
-            if (!Nodes.ContainsKey(node.name)) {
+            if (!Nodes.ContainsKey(node.outputs[0])) {
                 throw new ArgumentException($"The node'{node}' was not found in the graph.");
             }
             if (!Edges.ContainsKey(node)) {
@@ -116,7 +115,7 @@ namespace Neutron.Editor {
         }
 
         public int GetParentCount(Node node) {
-            if (!Nodes.ContainsKey(node.name)) {
+            if (!Nodes.ContainsKey(node.outputs[0])) {
                 throw new ArgumentException($"The node '{node}' was not found in the graph.");
             }
             if (!ReverseEdges.ContainsKey(node)) {
@@ -128,7 +127,7 @@ namespace Neutron.Editor {
         }
 
         public int GetParent(Node node) {
-            if (!Nodes.ContainsKey(node.name)) {
+            if (!Nodes.ContainsKey(node.outputs[0])) {
                 throw new ArgumentException($"The node '{node}' was not found in the graph.");
             }
             if (!ReverseEdges.ContainsKey(node)) {
@@ -149,7 +148,7 @@ namespace Neutron.Editor {
 
         public bool IsOutput(string name) {
             foreach (var output in _outputs) {
-                if (name == output) {
+                if (name == output.name) {
                     return true;
                 }
             }
