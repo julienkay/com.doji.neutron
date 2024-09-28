@@ -29,7 +29,7 @@ namespace Neutron.Editor {
         private List<NodeView> _outputNodes = new List<NodeView>();
 
         private Graph _graph;
-        private HashSet<string> _layerCPUFallback;
+        private HashSet<int> _layerCPUFallback;
 
         public ModelGraphView() {
             //Insert(0, new GridBackground());
@@ -79,14 +79,15 @@ namespace Neutron.Editor {
         }
 
         private void GetCpuFallbackNodes() {
-            Type type = _nnModel.GetType();
+            using Worker w = new Worker(_nnModel, BackendType.GPUCompute);
 
-            // TODO: m_LayerCPUFallback moved to Worker
-            FieldInfo fieldInfo = type.GetField("LayerCPUFallback", BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo fieldInfo = typeof(Worker).GetField("m_LayerCPUFallback", BindingFlags.NonPublic | BindingFlags.Instance);
 
             if (fieldInfo != null) {
                 // Access the value of the field from the model instance
-                _layerCPUFallback = new HashSet<string>((HashSet<string>)fieldInfo.GetValue(_nnModel));
+                _layerCPUFallback = new HashSet<int>((HashSet<int>)fieldInfo.GetValue(w));
+            } else {
+                _layerCPUFallback = new HashSet<int>();
             }
         }
 
@@ -168,8 +169,8 @@ namespace Neutron.Editor {
 
         private NodeView CreateLayerNode(OnnxLayer layer) {
             NodeView node = new NodeView(layer, Orientation);
-            node.title = _layerCPUFallback?.Contains(layer.ToString()) == true ? $"{node.title} (CPU)" : node.title;
-            node.CPUFallback = _layerCPUFallback?.Contains(layer.ToString()) == true;
+            node.title = _layerCPUFallback.Contains(layer.outputs[0]) ? $"{node.title} (CPU)" : node.title;
+            node.CPUFallback = _layerCPUFallback.Contains(layer.outputs[0]);
             AddElement(node);
             node.capabilities = Capabilities.Selectable | Capabilities.Movable;
             _nodeMap.Add(layer.outputs[0], node);
